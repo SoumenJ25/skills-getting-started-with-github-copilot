@@ -87,3 +87,38 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize app
   fetchActivities();
 });
+
+// Fetch and display activities with participants
+async function loadActivities() {
+  const activitiesList = document.getElementById("activities-list");
+  const activityTemplate = document.getElementById("activity-template");
+
+  try {
+    const response = await fetch("/activities");
+    const activities = await response.json();
+
+    activitiesList.innerHTML = ""; // Clear loading message
+
+    for (const [name, details] of Object.entries(activities)) {
+      const activityCard = activityTemplate.content.cloneNode(true);
+
+      activityCard.querySelector(".activity-name").textContent = name;
+      activityCard.querySelector(".activity-description").textContent = details.description;
+      activityCard.querySelector(".activity-schedule").textContent = `Schedule: ${details.schedule}`;
+
+      const participantsList = activityCard.querySelector(".activity-participants");
+      details.participants.forEach((participant) => {
+        const listItem = document.createElement("li");
+        listItem.textContent = participant;
+        participantsList.appendChild(listItem);
+      });
+
+      activitiesList.appendChild(activityCard);
+    }
+  } catch (error) {
+    activitiesList.innerHTML = "<p>Error loading activities. Please try again later.</p>";
+  }
+}
+
+// Call loadActivities on page load
+document.addEventListener("DOMContentLoaded", loadActivities);
